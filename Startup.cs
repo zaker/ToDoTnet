@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using ToDoTnet.DataEntities;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using ToDoTnet.Logic;
+using ToDoTnet.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace ToDoTnet
 {
@@ -34,13 +36,7 @@ namespace ToDoTnet
 
 
             services.AddAuthorization();
-            services.AddMvc(config =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                                 .RequireAuthenticatedUser()
-                                 .Build();
-                config.Filters.Add(new AuthorizeFilter(policy));
-            });
+
             var dbOpt = new DbContextOptionsBuilder<ToDoContext>();
             dbOpt.UseSqlite(Program.connString);
 
@@ -49,11 +45,17 @@ namespace ToDoTnet
             services.AddDbContext<ToDoContext>(options => options.UseSqlite(Program.connString));
 
 
-            //services.AddIdentity<User, RoleManager>()
-            //    .AddUserStore<UserStore<User>>()
-            //    .AddRoleStore<UnaUserGroupStore<UnaUserGroup>>();
-
-            services.AddScoped<SignInManager<User>, ToDoSignInManager>();
+            services.AddIdentity<ToDoUser, IdentityRole>()
+                .AddEntityFrameworkStores<ToDoContext>()
+                .AddUserStore<ToDoUserStore<ToDoUser>>();
+            services.AddMvc(config =>
+            {
+                var policy = new AuthorizationPolicyBuilder()
+                                 .RequireAuthenticatedUser()
+                                 .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            });
+            services.AddScoped<SignInManager<ToDoUser>, ToDoSignInManager>();
 
         }
 

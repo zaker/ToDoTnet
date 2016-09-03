@@ -10,11 +10,11 @@ using ToDoTnet.DataEntities;
 
 namespace ToDoTnet.Logic
 {
-    public class UserStore<TUser> : IUserStore<TUser>, IUserPasswordStore<TUser>
+    public class ToDoUserStore<TUser> : IUserStore<TUser>, IUserPasswordStore<TUser>
         where TUser : ToDoUser, new()
     {
         private ToDoContext _ctx;
-        public UserStore(ToDoContext ctx)
+        public ToDoUserStore(ToDoContext ctx)
         {
             _ctx = ctx;
         }

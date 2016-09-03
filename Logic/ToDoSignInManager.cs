@@ -12,13 +12,13 @@ using ToDoTnet.DataEntities;
 
 namespace ToDoTnet.Logic
 {
-    public class ToDoSignInManager : SignInManager<User> 
+    public class ToDoSignInManager : SignInManager<ToDoUser> 
     {
-        public ToDoSignInManager(UserManager<User> userManager, 
+        public ToDoSignInManager(UserManager<ToDoUser> userManager, 
             IHttpContextAccessor contextAccessor, 
-            IUserClaimsPrincipalFactory<User> claimsFactory, 
+            IUserClaimsPrincipalFactory<ToDoUser> claimsFactory, 
             IOptions<IdentityOptions> optionsAccessor, 
-            ILogger<SignInManager<User>> logger) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger)
+            ILogger<SignInManager<ToDoUser>> logger) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger)
         {
             
         }
@@ -35,11 +35,11 @@ namespace ToDoTnet.Logic
             return SignInResult.Success;
         }
 
-        public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(User user)
+        public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ToDoUser user)
         {
             var principal = await base.CreateUserPrincipalAsync(user); 
             List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, user.Name, ClaimValueTypes.String, "urn:ToDoTnet"));
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName, ClaimValueTypes.String, "urn:ToDoTnet"));
 
             var identity = new ClaimsIdentity(claims, "Cookie");
 
