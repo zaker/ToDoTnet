@@ -56,6 +56,7 @@ namespace ToDoTnet
                 config.Filters.Add(new AuthorizeFilter(policy));
             });
             services.AddScoped<SignInManager<ToDoUser>, ToDoSignInManager>();
+            
 
         }
 
@@ -87,7 +88,7 @@ namespace ToDoTnet
 
             app.UseStaticFiles();
 
-            //app.UseIdentity();
+            app.UseIdentity();
 
             app.UseMvc(routes =>
             {

@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
-using static ToDoTnet.DataEntities.ToDoContext;
 using ToDoTnet.DataEntities;
 
 namespace ToDoTnet.Models
@@ -14,7 +10,7 @@ namespace ToDoTnet.Models
 
         public ToDoUser()
         {
-            _dbUser = null;
+            _dbUser = new User();
         }
         public ToDoUser(User dbUser)
         {
@@ -36,12 +32,12 @@ namespace ToDoTnet.Models
         {
             get
             {
-                return base.UserName;
+                return _dbUser.Name;
             }
 
             set
             {
-                base.UserName = value;
+                _dbUser.Name = value;
                 base.NormalizedUserName = value.ToUpper();
             }
         }
@@ -68,17 +64,18 @@ namespace ToDoTnet.Models
                 return _dbUser.UserID.ToString();
             }
 
-            set
-            {
-                return;
-            }
+
         }
 
         public override string PasswordHash
         {
             get
             {
-                return "DDD9";
+                if (Password == null) return null;
+
+                PasswordHasher < ToDoUser > hasher = new PasswordHasher<ToDoUser>();
+
+                return hasher.HashPassword(this, Password); 
             }
 
             set

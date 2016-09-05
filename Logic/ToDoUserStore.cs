@@ -20,32 +20,47 @@ namespace ToDoTnet.Logic
         }
         public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+
+            _ctx.Users.Add(new User
+            {
+                Name = user.UserName,
+                Email = user.Email,
+                Password = user.PasswordHash
+            });
+            _ctx.SaveChanges();
+            return Task.FromResult(IdentityResult.Success);
         }
+
 
         public Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
+        public async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // if your users set name is Users
+            var dbUser = await (from u in _ctx.Users
+                                where u.UserID.ToString() == userId
+                                select u).FirstOrDefaultAsync();
+            TUser user = new TUser();
+            user.AttachDbEntity(dbUser);
+            return user;
+
         }
 
         public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
-            using (var db = _ctx) // use your DbConext
-            {
-                // if your users set name is Users
-                var dbUser = await(from u in db.Users
-                                   where u.Name.ToUpper() == normalizedUserName
-                                 select u ).FirstOrDefaultAsync();
-                TUser user = new TUser();
-                //user.AttachDbEntity(dbUser);
-                return user;
+
+            // if your users set name is Users
+            var dbUser = await (from u in _ctx.Users
+                                where u.Name.ToUpper() == normalizedUserName
+                                select u).FirstOrDefaultAsync();
+            TUser user = new TUser();
+            user.AttachDbEntity(dbUser);
+            return user;
+
         }
-    }
 
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
@@ -59,7 +74,7 @@ namespace ToDoTnet.Logic
 
         public Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.UserName);
         }
 
         public Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken)
@@ -67,12 +82,16 @@ namespace ToDoTnet.Logic
             throw new NotImplementedException();
         }
 
-        public Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken)
+        public Task SetUserNameAsync(TUser userIn, string userName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // if your users set name is Users
+            var dbUser = _ctx.Users.First(u => u.UserID == Guid.Parse(userIn.Id)).Name = userName;
+
+            return Task.FromResult(_ctx.SaveChanges());
+
         }
 
-        public Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
+        public Task<IdentityResult> UpdateAsync(TUser userIn, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -111,9 +130,24 @@ namespace ToDoTnet.Logic
             // GC.SuppressFinalize(this);
         }
 
-        public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken)
+        public async Task SetPasswordHashAsync(TUser userIn, string passwordHash, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+
+            // if your users set name is Users
+            var dbUser = await FindByIdAsync(userIn.Id, cancellationToken);
+
+            if (dbUser == null)
+            {
+                await CreateAsync(dbUser, cancellationToken);
+            }
+            dbUser.Password = passwordHash;
+
+
+            await _ctx.SaveChangesAsync();
+
+
+
+            return;
         }
 
         public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
@@ -123,7 +157,7 @@ namespace ToDoTnet.Logic
 
         public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(user.PasswordHash.Length > 0);
         }
         #endregion
     }
