@@ -53,9 +53,36 @@ namespace ToDoTnet.Controllers
         [HttpGet]
         public IActionResult Sudo()
         {
-            var id = new ClaimsIdentity("Administrator");
-            id.AddClaim(new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, "ToDoTnet"));
-            HttpContext.User.AddIdentity(id);
+            var userName = HttpContext.User.Identity.Name;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            if (identity == null)
+                return NoContent();
+
+            // check for existing claim and remove it
+            foreach (var cl in identity.Claims)
+            {
+
+                identity.RemoveClaim(cl);
+            }
+            const string Issuer = "ToDoTnet";
+            var claims = new List<Claim>();
+
+
+            claims.Add(new Claim(ClaimTypes.Name, userName, ClaimValueTypes.String, Issuer));
+
+            claims.Add(new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, Issuer));
+
+            var userIdentity = new ClaimsIdentity("ToDoLogin");
+            userIdentity.AddClaims(claims);
+            var userPrincipal = new ClaimsPrincipal(userIdentity);
+
+            HttpContext.Authentication.SignInAsync("Cookie", userPrincipal,
+               new AuthenticationProperties
+               {
+                   ExpiresUtc = DateTime.UtcNow.AddMinutes(30),
+                   IsPersistent = false,
+                   AllowRefresh = false
+               });
             return Ok();
         }
 
@@ -129,7 +156,7 @@ namespace ToDoTnet.Controllers
                 Email = userModel.Email,
                 Password = userModel.Password
             };
-            
+
             var result = await _userManager.CreateAsync(user, userModel.Password);
 
             return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
