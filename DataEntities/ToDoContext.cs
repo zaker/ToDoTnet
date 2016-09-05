@@ -46,20 +46,7 @@ namespace ToDoTnet.DataEntities
         public string Product { get; set; }
 
         public Guid UserID { get; set; }
-        public User User
-        {
-            set
-            {
-                UserID = value.UserID;
-            }
-            get
-            {
-                using (var db = new ToDoContext())
-                {
-                    return db.Users.FirstOrDefault(u => u.UserID == UserID);
-                }
-            }
-        }
+
 
     }
 

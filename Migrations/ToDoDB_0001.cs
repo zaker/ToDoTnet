@@ -36,12 +36,6 @@ namespace ToDoTnet.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ToDos", x => x.ToDoID);
-                    table.ForeignKey(
-                        name: "FK_ToDos_Users_UserID",
-                        column: x => x.UserID,
-                        principalTable: "Users",
-                        principalColumn: "UserID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

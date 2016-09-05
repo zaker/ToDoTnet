@@ -13,25 +13,23 @@ namespace ToDoTnet
             using (var db = new ToDoContext())
             {
                 if (db.Users.FirstOrDefault(u => u.Name == "Admin") != null) return;
-                var exist = from u in db.Users
-                            where u.Name == "Admin"
-                            select u;
-
-                var admin = new User { Name = "Admin", Email = "gm@il.io", Password = "Secret1" };
-
-                db.Users.Add(admin);
                 
-                var count = db.SaveChanges();
+                var admin = new User { Name = "Admin", Email = "gm@il.io", Password = "Secret1" };
+                db.Users.Add(admin);
 
+                var count = db.SaveChanges();
                 var firstTask = new ToDo
                 {
                     Title = "Created Admin",
                     Description = "Created admin \n Only to populate database with something",
-                    User= admin,
+                    UserID = admin.UserID,
                     Product = "ToDoTnet",
                     Type = "System Task"
                 };
+                
                 db.ToDos.Add(firstTask);
+
+
                 count += db.SaveChanges();
                 Console.WriteLine("{0} records saved to database", count);
 
@@ -39,7 +37,7 @@ namespace ToDoTnet
                 Console.WriteLine("All users in database:");
                 foreach (var u in db.Users)
                 {
-                    Console.WriteLine("{0}({2}) - {1}", u.Name,u.Email,u.UserID);
+                    Console.WriteLine("{0}({2}) - {1}", u.Name, u.Email, u.UserID);
                 }
             }
         }

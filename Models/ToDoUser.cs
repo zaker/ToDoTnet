@@ -48,7 +48,7 @@ namespace ToDoTnet.Models
             set
             {
                 PasswordHasher<ToDoUser> hasher = new PasswordHasher<ToDoUser>();
-                this.PasswordHash = hasher.HashPassword(this, value);
+                _dbUser.Password = hasher.HashPassword(this, value);
                 
             }
             get
@@ -67,22 +67,18 @@ namespace ToDoTnet.Models
 
         }
 
-        public override string PasswordHash
-        {
-            get
-            {
-                if (Password == null) return null;
+        //public override string PasswordHash
+        //{
+        //    get
+        //    {
+        //        return _dbUser.Password;
+        //    }
 
-                PasswordHasher < ToDoUser > hasher = new PasswordHasher<ToDoUser>();
-
-                return hasher.HashPassword(this, Password); 
-            }
-
-            set
-            {
-                base.PasswordHash = value;
-            }
-        }
+        //    set
+        //    {
+        //        base.PasswordHash = value;
+        //    }
+        //}
 
 
     }

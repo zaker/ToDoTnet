@@ -8,8 +8,8 @@ using ToDoTnet.Models;
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using TodoApi.Controllers;
 using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 namespace ToDoTnet.Controllers
 {
@@ -49,6 +49,16 @@ namespace ToDoTnet.Controllers
             return null;
         }
 
+
+        [HttpGet]
+        public IActionResult Sudo()
+        {
+            var id = new ClaimsIdentity("Administrator");
+            id.AddClaim(new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, "ToDoTnet"));
+            HttpContext.User.AddIdentity(id);
+            return Ok();
+        }
+
         //
         // POST: /User/Login
         [HttpPost]
@@ -68,6 +78,10 @@ namespace ToDoTnet.Controllers
                     const string Issuer = "ToDoTnet";
                     var claims = new List<Claim>();
                     claims.Add(new Claim(ClaimTypes.Name, model.User, ClaimValueTypes.String, Issuer));
+                    if (model.User == "Admin")
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, Issuer));
+                    }
                     var userIdentity = new ClaimsIdentity("ToDoLogin");
                     userIdentity.AddClaims(claims);
                     var userPrincipal = new ClaimsPrincipal(userIdentity);
@@ -85,7 +99,7 @@ namespace ToDoTnet.Controllers
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning(2, "User account locked out.");
-                    return View("Lockout");
+                    return RedirectToAction(nameof(Login));
                 }
                 else
                 {

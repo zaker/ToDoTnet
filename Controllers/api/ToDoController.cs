@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace TodoApi.Controllers
+namespace ToDoTnet.Controllers
 {
         public class TodoController : Controller
     {
@@ -40,16 +40,25 @@ namespace TodoApi.Controllers
         [HttpGet]
         public async Task<List<ToDo>> Get()
         {
-            return await  Ctx.ToDos.ToListAsync();
+            var userName = HttpContext.User.Identity.Name;
+
+            var uID = Ctx.Users.First(u => u.Name == userName).UserID;
+            return await  Ctx.ToDos.Where(t=> t.UserID == uID).ToListAsync();
         }
 
-
+        
         public async Task<IActionResult> Get(string id)
         {
             var gID = Guid.Parse(id);
             return OkOrNotFound(await Ctx.ToDos.FirstAsync(a => a.ToDoID == gID));
         }
 
+        [HttpGet]
+        [Authorize(Policy = "AdministratorOnly")]
+        public async Task<List<ToDo>> GetAll()
+        {
+            return await Ctx.ToDos.ToListAsync();
+        }
 
 
         [HttpPost]
@@ -59,10 +68,11 @@ namespace TodoApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var user = HttpContext.User.Identity;
+            var userName = HttpContext.User.Identity.Name;
 
+            var uID = Ctx.Users.First(u => u.Name == userName).UserID;
             var dbEnt = new ToDo() {
-                User = Ctx.Users.First(u => u.Name == "Admin"),
+                UserID =uID,
                 Title = todoTask.Title,
                 Description = todoTask.Description,
                 Product = todoTask.Product,

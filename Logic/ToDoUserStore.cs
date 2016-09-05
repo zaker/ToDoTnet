@@ -77,9 +77,11 @@ namespace ToDoTnet.Logic
             return Task.FromResult(user.UserName);
         }
 
-        public Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken)
+        public Task SetNormalizedUserNameAsync(TUser userIn, string normalizedName, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            userIn.NormalizedUserName = normalizedName;
+
+            return Task.CompletedTask;
         }
 
         public Task SetUserNameAsync(TUser userIn, string userName, CancellationToken cancellationToken)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ToDoTnet.DataEntities;
+using ToDoTnet.Logic;
 
 namespace ToDoTnet.Models
 {
@@ -30,15 +31,15 @@ namespace ToDoTnet.Models
         }
 
 
-        public string DoerName
-        {
-            get
-            {
-                return _dbEnt.User.Name;
-            }
+        //public string DoerName
+        //{
+        //    get
+        //    {
+        //        return _dbEnt.FindByIdAsync(_dbEnt.UserID);
+        //    }
 
 
-        }
+        //}
 
 
         public string Title

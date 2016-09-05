@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using ToDoTnet.Logic;
 using ToDoTnet.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ToDoTnet
 {
@@ -35,7 +36,10 @@ namespace ToDoTnet
             // Add framework services.
 
 
-            services.AddAuthorization();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdministratorOnly", policy => policy.RequireRole("Administrator"));
+            });
 
             var dbOpt = new DbContextOptionsBuilder<ToDoContext>();
             dbOpt.UseSqlite(Program.connString);
@@ -89,7 +93,10 @@ namespace ToDoTnet
             app.UseStaticFiles();
 
             app.UseIdentity();
-
+            app.UseClaimsTransformation(new ClaimsTransformationOptions
+            {
+                Transformer = new ClaimsTransformer()
+            });
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
