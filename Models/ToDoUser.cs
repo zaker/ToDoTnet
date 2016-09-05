@@ -14,7 +14,7 @@ namespace ToDoTnet.Models
 
         public ToDoUser()
         {
-            _dbUser = null;
+            _dbUser = new User();
         }
         public ToDoUser(User dbUser)
         {
@@ -78,7 +78,8 @@ namespace ToDoTnet.Models
         {
             get
             {
-                return "DDD9";
+                PasswordHasher < ToDoUser > hasher = new PasswordHasher<ToDoUser>();
+                return hasher.HashPassword(this, Password); 
             }
 
             set

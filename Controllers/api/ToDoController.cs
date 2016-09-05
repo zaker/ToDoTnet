@@ -33,7 +33,7 @@ namespace TodoApi.Controllers
             {
                 return NotFound();
             }
-            return new ObjectResult(item);
+            return new OkObjectResult(new ToDoTask(item.First()));
         }
 
 
@@ -53,21 +53,28 @@ namespace TodoApi.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]ToDo todoTask)
+        public async Task<IActionResult> Create([FromBody]ToDoTask todoTask)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            Get
-            Ctx.ToDos.Add(todoTask);
-            await Ctx.SaveChangesAsync();
+            var user = HttpContext.User.Identity;
 
-            return CreatedAtAction(nameof(Get), new { ToDo = todoTask.ToDoID }, todoTask);
+            var dbEnt = new ToDo() {
+                User = Ctx.Users.First(u => u.Name == "Admin"),
+                Title = todoTask.Title,
+                Description = todoTask.Description,
+                Product = todoTask.Product,
+                Type = todoTask.Type
+            };
+            Ctx.ToDos.Add(dbEnt);
+            await Ctx.SaveChangesAsync();
+            return CreatedAtAction(nameof(Get), new {  id = todoTask.Id }, todoTask);
         }
 
         
-        public async Task<IActionResult> Update([FromBody]ToDo todoTask)
+        public async Task<IActionResult> Update([FromBody]ToDoTask todoTask)
         {
             if (todoTask == null)
             {
@@ -78,7 +85,11 @@ namespace TodoApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-
+            Guid todoID;
+            if (!Guid.TryParse(todoTask.Id, out todoID))
+            {
+                return NotFound();
+            }
             try
             {
                 Ctx.Update(todoTask);
@@ -87,7 +98,7 @@ namespace TodoApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!Ctx.ToDos.Any(a=> a.ToDoID == todoTask.ToDoID))
+                if (!Ctx.ToDos.Any(a=> a.ToDoID == todoID))
                 {
                     return NotFound();
                 }

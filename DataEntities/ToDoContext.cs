@@ -20,6 +20,11 @@ namespace ToDoTnet.DataEntities
 
     public class User
     {
+        public User()
+        {
+            UserID = Guid.NewGuid();
+
+        }
         public Guid UserID { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -29,6 +34,11 @@ namespace ToDoTnet.DataEntities
 
     public class ToDo
     {
+        public ToDo()
+        {
+            ToDoID = Guid.NewGuid();
+
+        }
         public Guid ToDoID { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
