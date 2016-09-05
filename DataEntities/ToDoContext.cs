@@ -20,11 +20,11 @@ namespace ToDoTnet.DataEntities
 
     public class User
     {
-        public User()
-        {
-            UserID = Guid.NewGuid();
+        //public User()
+        //{
+        //    UserID = Guid.NewGuid();
 
-        }
+        //}
         public Guid UserID { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -34,11 +34,11 @@ namespace ToDoTnet.DataEntities
 
     public class ToDo
     {
-        public ToDo()
-        {
-            ToDoID = Guid.NewGuid();
+        //public ToDo()
+        //{
+        //    ToDoID = Guid.NewGuid();
 
-        }
+        //}
         public Guid ToDoID { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
@@ -46,9 +46,21 @@ namespace ToDoTnet.DataEntities
         public string Product { get; set; }
 
         public Guid UserID { get; set; }
-        public User User { get; set; }
+        public User User
+        {
+            set
+            {
+                UserID = value.UserID;
+            }
+            get
+            {
+                using (var db = new ToDoContext())
+                {
+                    return db.Users.FirstOrDefault(u => u.UserID == UserID);
+                }
+            }
+        }
+
     }
-
-
 
 }

@@ -56,6 +56,7 @@ namespace ToDoTnet
                 config.Filters.Add(new AuthorizeFilter(policy));
             });
             services.AddScoped<SignInManager<ToDoUser>, ToDoSignInManager>();
+            
 
         }
 

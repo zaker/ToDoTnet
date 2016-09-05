@@ -112,9 +112,10 @@ namespace ToDoTnet.Controllers
             ToDoUser user = new ToDoUser(new DataEntities.User())
             {
                 UserName = userModel.User,
-                Email = userModel.Email
+                Email = userModel.Email,
+                Password = userModel.Password
             };
-
+            
             var result = await _userManager.CreateAsync(user, userModel.Password);
 
             return CreatedAtAction(nameof(Get), new { id = user.Id }, user);

@@ -2,17 +2,37 @@
 using Microsoft.AspNetCore.Hosting;
 using ToDoTnet.DataEntities;
 using System;
+using System.Linq;
 
 namespace ToDoTnet
 {
     public class Program
     {
-        private static void preLoad()
+        private static void createAdmin()
         {
             using (var db = new ToDoContext())
             {
-                db.Users.Add(new User { Name = "Admin", Email = "gm@il.io",Password = "Foo"});
+                if (db.Users.FirstOrDefault(u => u.Name == "Admin") != null) return;
+                var exist = from u in db.Users
+                            where u.Name == "Admin"
+                            select u;
+
+                var admin = new User { Name = "Admin", Email = "gm@il.io", Password = "Secret1" };
+
+                db.Users.Add(admin);
+                
                 var count = db.SaveChanges();
+
+                var firstTask = new ToDo
+                {
+                    Title = "Created Admin",
+                    Description = "Created admin \n Only to populate database with something",
+                    User= admin,
+                    Product = "ToDoTnet",
+                    Type = "System Task"
+                };
+                db.ToDos.Add(firstTask);
+                count += db.SaveChanges();
                 Console.WriteLine("{0} records saved to database", count);
 
                 Console.WriteLine();
@@ -27,7 +47,7 @@ namespace ToDoTnet
         public static void Main(string[] args)
         {
             //connString = File.ReadAllText("conString.txt");
-            preLoad();
+            createAdmin();
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())
