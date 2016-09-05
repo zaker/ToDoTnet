@@ -87,7 +87,7 @@ namespace ToDoTnet
 
             app.UseStaticFiles();
 
-            //app.UseIdentity();
+            app.UseIdentity();
 
             app.UseMvc(routes =>
             {

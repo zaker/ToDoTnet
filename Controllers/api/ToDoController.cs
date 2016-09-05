@@ -17,7 +17,6 @@ namespace TodoApi.Controllers
         }
         public ToDoContext Ctx { get; set; }
 
-        [AllowAnonymous]
         public IEnumerable<ToDo> GetAll()
         {
             return Ctx.ToDos;
@@ -41,6 +40,22 @@ namespace TodoApi.Controllers
             return new ObjectResult(item);
         }
 
-
+   
+        public IActionResult Login(string id)
+        {
+            Guid todoID;
+            if (!Guid.TryParse(id, out todoID))
+            {
+                return null;
+            }
+            var item = from t in Ctx.ToDos
+                       where t.ToDoID == todoID
+                       select t;
+            if (item == null)
+            {
+                return NotFound();
+            }
+            return new ObjectResult(item);
+        }
     }
 }
