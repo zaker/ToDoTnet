@@ -131,7 +131,7 @@ namespace ToDoTnet.Controllers
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation(4, "User logged out.");
-            return RedirectToAction(nameof(TodoController.GetAll), "ToDo");
+            return RedirectToAction(nameof(TodoController.Get), "ToDo");
         }
 
         #region Helpers
@@ -157,7 +157,7 @@ namespace ToDoTnet.Controllers
             }
             else
             {
-                return RedirectToAction(nameof(TodoController.GetAll), "ToDo");
+                return RedirectToAction(nameof(TodoController.Get), "ToDo");
             }
         }
         private IActionResult OkOrNotFound(object result)
