@@ -33,6 +33,13 @@ namespace ToDoTnet.Controllers
             _logger = loggerFactory.CreateLogger<UserController>();
         }
 
+
+        //[HttpGet("{id:string}")]
+        public async Task<IActionResult> Get(string id)
+        {
+            return OkOrNotFound(await _userManager.FindByIdAsync(id));
+        }
+
         //
         // GET: /User/Login
         [HttpGet]
@@ -45,7 +52,8 @@ namespace ToDoTnet.Controllers
         //
         // POST: /User/Login
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel model, string returnUrl = null)
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody]LoginModel model, string returnUrl = null)
         {
 
             if (ModelState.IsValid)
@@ -57,10 +65,10 @@ namespace ToDoTnet.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
-                    const string Issuer = "WebUna";
+                    const string Issuer = "ToDoTnet";
                     var claims = new List<Claim>();
                     claims.Add(new Claim(ClaimTypes.Name, model.User, ClaimValueTypes.String, Issuer));
-                    var userIdentity = new ClaimsIdentity("SuperSecureLogin");
+                    var userIdentity = new ClaimsIdentity("ToDoLogin");
                     userIdentity.AddClaims(claims);
                     var userPrincipal = new ClaimsPrincipal(userIdentity);
 
@@ -94,14 +102,14 @@ namespace ToDoTnet.Controllers
         // GET: /User/Register
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IHttpActionResult> Register(LoginModel userModel)
+        public async Task<IActionResult> Register([FromBody]LoginModel userModel)
         {
             if (!ModelState.IsValid)
             {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                return View(model);
+                return BadRequest(ModelState);
             }
-            ToDoUser user = new ToDoUser
+
+            ToDoUser user = new ToDoUser(new DataEntities.User())
             {
                 UserName = userModel.User,
                 Email = userModel.Email
@@ -109,7 +117,8 @@ namespace ToDoTnet.Controllers
 
             var result = await _userManager.CreateAsync(user, userModel.Password);
 
-            return result;
+            return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
+
         }
 
 
@@ -117,7 +126,7 @@ namespace ToDoTnet.Controllers
         // POST: /User/LogOff
         [HttpPost]
         [Authorize]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> LogOff()
         {
             await _signInManager.SignOutAsync();
@@ -151,6 +160,16 @@ namespace ToDoTnet.Controllers
                 return RedirectToAction(nameof(TodoController.GetAll), "ToDo");
             }
         }
+        private IActionResult OkOrNotFound(object result)
+        {
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
+        }
+
 
         #endregion
     }
