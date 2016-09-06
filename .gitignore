@@ -22,6 +22,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 
+# Code Rush config directory
+.cr/
+
 # Visual Studio 2015 cache/options directory
 .vs/
 
