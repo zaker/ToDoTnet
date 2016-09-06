@@ -31,15 +31,22 @@ namespace ToDoTnet.Models
         }
 
 
-        //public string DoerName
-        //{
-        //    get
-        //    {
-        //        return _dbEnt.FindByIdAsync(_dbEnt.UserID);
-        //    }
+        public string DoerName
+        {
+            get
+            {
+                using (var db = new ToDoContext()) // use your DbConext
+                {
+                    // Fetch - again - your user from the DB with the Id.
+                    return (from u in db.Users
+                            where u.UserID == _dbEnt.UserID
+                            select u).FirstOrDefault()?.Name;
+                }
+
+            }
 
 
-        //}
+        }
 
 
         public string Title
@@ -95,6 +102,26 @@ namespace ToDoTnet.Models
             get
             {
                 return _dbEnt.Type;
+            }
+        }
+
+        public DateTime? DoneDate
+        {
+            set
+            {
+                _dbEnt.DoneDate = value;
+            }
+            get
+            {
+                return _dbEnt.DoneDate;
+            }
+        }
+
+        public bool IsDone
+        {
+            get
+            {
+                return _dbEnt.DoneDate.HasValue;
             }
         }
     }

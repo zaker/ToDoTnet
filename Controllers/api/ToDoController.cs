@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ToDoTnet.Controllers
 {
-        public class TodoController : Controller
+    public class TodoController : Controller
     {
         public TodoController(ToDoContext ctx)
         {
@@ -18,51 +18,71 @@ namespace ToDoTnet.Controllers
         }
         public ToDoContext Ctx { get; set; }
 
-       
-        public IActionResult Read(string id)
+
+        public async Task<IActionResult> Read(string id)
         {
             Guid todoID;
             if (!Guid.TryParse(id, out todoID))
             {
                 return null;
             }
-            var item = from t in Ctx.ToDos
-                       where t.ToDoID == todoID
-                       select t;
+            var gID = Guid.Parse(id);
+            var uID = Ctx.Users.First(u => u.Name == HttpContext.User.Identity.Name).UserID;
+            var item = await (from t in Ctx.ToDos
+                              where t.ToDoID == gID && t.UserID == uID
+                              select t).FirstOrDefaultAsync();
             if (item == null)
             {
                 return NotFound();
             }
-            return new OkObjectResult(new ToDoTask(item.First()));
+
+            return OkOrNotFound(new ToDoTask(item));
+
+
+
         }
 
 
         [HttpGet]
-        public async Task<List<ToDo>> Get()
+        public async Task<List<ToDoTask>> Get()
         {
             var userName = HttpContext.User.Identity.Name;
 
             var uID = Ctx.Users.First(u => u.Name == userName).UserID;
-            return await  Ctx.ToDos.Where(t=> t.UserID == uID).ToListAsync();
+
+            var items = await (from t in Ctx.ToDos
+                               where t.UserID == uID
+                               orderby t.Priority descending
+                               select t).ToListAsync();
+
+            List<ToDoTask> tt = new List<ToDoTask>();
+
+            items.ForEach(t => tt.Add(new ToDoTask(t)));
+
+            return tt;
         }
 
-        
-        public async Task<IActionResult> Get(string id)
-        {
-            var gID = Guid.Parse(id);
-            return OkOrNotFound(await Ctx.ToDos.FirstAsync(a => a.ToDoID == gID));
-        }
+
 
         [HttpGet]
         [Authorize(Policy = "AdministratorOnly")]
-        public async Task<List<ToDo>> GetAll()
+        public async Task<List<ToDoTask>> GetAll()
         {
-            return await Ctx.ToDos.ToListAsync();
+            var items = await (from t in Ctx.ToDos
+                               orderby t.Priority descending
+                               select t).ToListAsync();
+
+            List<ToDoTask> tt = new List<ToDoTask>();
+
+            items.ForEach(t => tt.Add(new ToDoTask(t)));
+
+
+            return tt;
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]ToDoTask todoTask)
+        public async Task<IActionResult> Create([FromBody]ToDoTaskModel todoTask)
         {
             if (!ModelState.IsValid)
             {
@@ -71,20 +91,24 @@ namespace ToDoTnet.Controllers
             var userName = HttpContext.User.Identity.Name;
 
             var uID = Ctx.Users.First(u => u.Name == userName).UserID;
-            var dbEnt = new ToDo() {
-                UserID =uID,
+            var dbEnt = new ToDo()
+            {
+                UserID = uID,
                 Title = todoTask.Title,
                 Description = todoTask.Description,
                 Product = todoTask.Product,
-                Type = todoTask.Type
+                Type = todoTask.Type,
+                DoneDate = todoTask.DoneDate,
+                Priority = todoTask.Priority
             };
             Ctx.ToDos.Add(dbEnt);
+
             await Ctx.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new {  id = todoTask.Id }, todoTask);
+            return CreatedAtAction(nameof(Get), new { id = dbEnt.ToDoID }, todoTask);
         }
 
-        
-        public async Task<IActionResult> Update([FromBody]ToDoTask todoTask)
+
+        public async Task<IActionResult> Update([FromBody]ToDoTaskModel todoTask, string id)
         {
             if (todoTask == null)
             {
@@ -96,19 +120,37 @@ namespace ToDoTnet.Controllers
                 return BadRequest(ModelState);
             }
             Guid todoID;
-            if (!Guid.TryParse(todoTask.Id, out todoID))
+            if (!Guid.TryParse(id, out todoID))
             {
                 return NotFound();
             }
+
+            var dbTask = await (from t in Ctx.ToDos
+                                where t.ToDoID == todoID
+                                select t).FirstOrDefaultAsync();
+
+            if (dbTask == null)
+            {
+                return NotFound();
+            }
+
+            dbTask.Title = todoTask.Title;
+            dbTask.Description = todoTask.Description;
+            dbTask.Product = todoTask.Product;
+            dbTask.Type = todoTask.Type;
+            dbTask.DoneDate = todoTask.DoneDate;
+            dbTask.Priority = todoTask.Priority;
+
+
             try
             {
-                Ctx.Update(todoTask);
+
                 await Ctx.SaveChangesAsync();
-                return Ok(todoTask);
+                return Ok(new ToDoTask(dbTask));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!Ctx.ToDos.Any(a=> a.ToDoID == todoID))
+                if (!Ctx.ToDos.Any(a => a.ToDoID == todoID))
                 {
                     return NotFound();
                 }
@@ -122,10 +164,10 @@ namespace ToDoTnet.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             Guid gID;
-            if (Guid.TryParse(id,out gID))
+            if (Guid.TryParse(id, out gID))
             {
                 return NotFound();
-            } 
+            }
             var todoTask = new ToDo
             {
                 ToDoID = gID

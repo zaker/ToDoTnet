@@ -112,7 +112,7 @@ namespace ToDoTnet.Logic
             {
                 if (disposing)
                 {
-                    _ctx.SaveChanges();
+                    
                 }
 
                 disposedValue = true;
