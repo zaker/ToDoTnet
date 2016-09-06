@@ -15,7 +15,7 @@ namespace ToDoTnet.Models
         public string Product { get; set; }
         public string Type { get; set; }
         public int Priority { get; set; }
-        public DateTime DoneDate { get; set; }
+        public DateTime? DoneDate { get; set; }
 
 
     }
