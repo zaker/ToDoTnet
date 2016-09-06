@@ -8,7 +8,7 @@ using ToDoTnet.DataEntities;
 namespace ToDoTnet.Migrations
 {
     [DbContext(typeof(ToDoContext))]
-    [Migration("20160903194501_ToDoDB_0001")]
+    [Migration("20160906120247_ToDoDB_0001")]
     partial class ToDoDB_0001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,6 +22,10 @@ namespace ToDoTnet.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<string>("Description");
+
+                    b.Property<DateTime?>("DoneDate");
+
+                    b.Property<int>("Priority");
 
                     b.Property<string>("Product");
 
@@ -54,13 +58,7 @@ namespace ToDoTnet.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ToDoTnet.DataEntities.ToDo", b =>
-                {
-                    b.HasOne("ToDoTnet.DataEntities.User", "User")
-                        .WithMany("ToDos")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
+
         }
     }
 }

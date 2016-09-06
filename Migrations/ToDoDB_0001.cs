@@ -28,6 +28,8 @@ namespace ToDoTnet.Migrations
                 {
                     ToDoID = table.Column<Guid>(nullable: false),
                     Description = table.Column<string>(nullable: true),
+                    DoneDate = table.Column<DateTime>(nullable: true),
+                    Priority = table.Column<int>(nullable: false),
                     Product = table.Column<string>(nullable: true),
                     Title = table.Column<string>(nullable: true),
                     Type = table.Column<string>(nullable: true),

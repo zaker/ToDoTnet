@@ -44,6 +44,8 @@ namespace ToDoTnet.DataEntities
         public string Description { get; set; }
         public string Type { get; set; }
         public string Product { get; set; }
+        public DateTime? DoneDate { get; set; }
+        public int Priority { get; set; }
 
         public Guid UserID { get; set; }
 

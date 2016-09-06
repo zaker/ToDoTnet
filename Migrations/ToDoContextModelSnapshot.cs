@@ -22,6 +22,10 @@ namespace ToDoTnet.Migrations
 
                     b.Property<string>("Description");
 
+                    b.Property<DateTime?>("DoneDate");
+
+                    b.Property<int>("Priority");
+
                     b.Property<string>("Product");
 
                     b.Property<string>("Title");
@@ -55,7 +59,7 @@ namespace ToDoTnet.Migrations
 
             modelBuilder.Entity("ToDoTnet.DataEntities.ToDo", b =>
                 {
-                    b.HasOne("ToDoTnet.DataEntities.User", "User")
+                    b.HasOne("ToDoTnet.DataEntities.User")
                         .WithMany("ToDos")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade);
