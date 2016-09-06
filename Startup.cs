@@ -40,18 +40,6 @@ namespace ToDoTnet
             {
                 options.AddPolicy("AdministratorOnly", policy => policy.RequireRole("Administrator"));
             });
-
-            var dbOpt = new DbContextOptionsBuilder<ToDoContext>();
-            dbOpt.UseSqlite(Program.connString);
-
-
-
-            services.AddDbContext<ToDoContext>(options => options.UseSqlite(Program.connString));
-
-
-            services.AddIdentity<ToDoUser, IdentityRole>()
-                .AddEntityFrameworkStores<ToDoContext>()
-                .AddUserStore<ToDoUserStore<ToDoUser>>();
             services.AddMvc(config =>
             {
                 var policy = new AuthorizationPolicyBuilder()
@@ -59,8 +47,17 @@ namespace ToDoTnet
                                  .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
             });
+
+            services.AddDbContext<ToDoContext>(options => options.UseSqlite(Program.connString));
+
+
+            services.AddIdentity<ToDoUser, IdentityRole>()
+                .AddEntityFrameworkStores<ToDoContext>()
+                .AddUserStore<ToDoUserStore<ToDoUser>>();
+
             services.AddScoped<SignInManager<ToDoUser>, ToDoSignInManager>();
-            
+            services.AddScoped<UserManager<ToDoUser>, ToDoUserManager>();
+
 
         }
 

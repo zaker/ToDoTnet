@@ -13,7 +13,7 @@ namespace ToDoTnet.Models
 
         public ToDoTask()
         {
-            _dbEnt = new ToDo();
+            _dbEnt = null;
         }
         public ToDoTask(ToDo dbEnt)
         {

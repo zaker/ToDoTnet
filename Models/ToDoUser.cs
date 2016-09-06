@@ -4,13 +4,13 @@ using ToDoTnet.DataEntities;
 
 namespace ToDoTnet.Models
 {
-    public class ToDoUser : IdentityUser , IAttachDbEntity<User>
+    public class ToDoUser : IdentityUser, IAttachDbEntity<User>
     {
         private User _dbUser;
 
         public ToDoUser()
         {
-            _dbUser = new User();
+            _dbUser = null;
         }
         public ToDoUser(User dbUser)
         {
@@ -42,14 +42,15 @@ namespace ToDoTnet.Models
             }
         }
 
-        
+
         public string Password
         {
             set
             {
                 PasswordHasher<ToDoUser> hasher = new PasswordHasher<ToDoUser>();
-                _dbUser.Password = hasher.HashPassword(this, value);
-                
+                _dbUser.Password = value;
+                PasswordHash = hasher.HashPassword(this, value);
+
             }
             get
             {
@@ -67,18 +68,18 @@ namespace ToDoTnet.Models
 
         }
 
-        //public override string PasswordHash
-        //{
-        //    get
-        //    {
-        //        return _dbUser.Password;
-        //    }
+        public override string PasswordHash
+        {
+            get
+            {
+                if (_dbUser?.Password == null) return null;
+                PasswordHasher<ToDoUser> hasher = new PasswordHasher<ToDoUser>();
 
-        //    set
-        //    {
-        //        base.PasswordHash = value;
-        //    }
-        //}
+                return hasher.HashPassword(this, _dbUser.Password);
+            }
+
+
+        }
 
 
     }

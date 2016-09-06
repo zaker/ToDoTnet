@@ -98,7 +98,10 @@ namespace ToDoTnet.Controllers
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.User, model.Password, isPersistent: false, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(model.User, 
+                    model.Password, 
+                    isPersistent: false, 
+                    lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation(1, "User logged in.");
@@ -130,13 +133,13 @@ namespace ToDoTnet.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
+                    _logger.LogWarning(2, "Invalid login attempt.");
+                    return new NoContentResult();
                 }
             }
 
             // If we got this far, something failed, redisplay form
-            return View(model);
+            return  new NoContentResult();
         }
 
         //
@@ -150,17 +153,24 @@ namespace ToDoTnet.Controllers
                 return BadRequest(ModelState);
             }
 
-            ToDoUser user = new ToDoUser(new DataEntities.User())
+            var dbUser = new DataEntities.User();
+
+            ToDoUser newUser = new ToDoUser(dbUser)
             {
                 UserName = userModel.User,
                 Email = userModel.Email,
                 Password = userModel.Password
             };
 
-            var result = await _userManager.CreateAsync(user, userModel.Password);
+            
 
-            return CreatedAtAction(nameof(Get), new { id = user.Id }, user);
-
+            var result = await _userManager.CreateAsync(newUser, userModel.Password);
+            if (result.Succeeded)
+            {
+                
+                return CreatedAtAction(nameof(Get), new { id = newUser.Id }, _userManager.FindByNameAsync(userModel.User));
+            }
+            return NoContent();
         }
 
 
@@ -171,7 +181,7 @@ namespace ToDoTnet.Controllers
 
         public async Task<IActionResult> LogOff()
         {
-            await _signInManager.SignOutAsync();
+            await HttpContext.Authentication.SignOutAsync("Cookie");
             _logger.LogInformation(4, "User logged out.");
             return RedirectToAction(nameof(TodoController.Get), "ToDo");
         }

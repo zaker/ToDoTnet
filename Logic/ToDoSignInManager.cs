@@ -31,6 +31,12 @@ namespace ToDoTnet.Logic
                 return SignInResult.Failed;
             }
 
+            PasswordHasher<ToDoUser> hasher = new PasswordHasher<ToDoUser>();
+            if (user.Password != password){
+                return SignInResult.Failed;
+            }
+
+
             //claimsFactory.CreateAsync();
             return SignInResult.Success;
         }

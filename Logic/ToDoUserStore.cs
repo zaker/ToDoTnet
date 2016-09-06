@@ -21,13 +21,16 @@ namespace ToDoTnet.Logic
         public Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
 
-            _ctx.Users.Add(new User
+            var dbUser = new User
             {
                 Name = user.UserName,
                 Email = user.Email,
-                Password = user.PasswordHash
-            });
+                Password = user.Password
+            };
+
+            _ctx.Users.Add(dbUser);
             _ctx.SaveChanges();
+
             return Task.FromResult(IdentityResult.Success);
         }
 
@@ -43,6 +46,7 @@ namespace ToDoTnet.Logic
             var dbUser = await (from u in _ctx.Users
                                 where u.UserID.ToString() == userId
                                 select u).FirstOrDefaultAsync();
+            if (dbUser == null) return null;
             TUser user = new TUser();
             user.AttachDbEntity(dbUser);
             return user;
@@ -54,8 +58,9 @@ namespace ToDoTnet.Logic
 
             // if your users set name is Users
             var dbUser = await (from u in _ctx.Users
-                                where u.Name.ToUpper() == normalizedUserName
+                                where u.Name.ToUpper() == normalizedUserName.ToUpper()
                                 select u).FirstOrDefaultAsync();
+            if (dbUser == null) return null;
             TUser user = new TUser();
             user.AttachDbEntity(dbUser);
             return user;
@@ -134,15 +139,15 @@ namespace ToDoTnet.Logic
 
         public async Task SetPasswordHashAsync(TUser userIn, string passwordHash, CancellationToken cancellationToken)
         {
-
-            // if your users set name is Users
-            var dbUser = await FindByIdAsync(userIn.Id, cancellationToken);
+            
+            var dbUser = await FindByNameAsync(userIn.UserName, cancellationToken);
 
             if (dbUser == null)
             {
-                await CreateAsync(dbUser, cancellationToken);
+                return;
             }
-            dbUser.Password = passwordHash;
+            
+            dbUser.PasswordHash = passwordHash;
 
 
             await _ctx.SaveChangesAsync();
@@ -154,12 +159,12 @@ namespace ToDoTnet.Logic
 
         public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(user.PasswordHash);
+            return Task.FromResult(user.Password);
         }
 
         public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
-            return Task.FromResult(user.PasswordHash.Length > 0);
+            return Task.FromResult(user.Password.Length > 0);
         }
         #endregion
     }
