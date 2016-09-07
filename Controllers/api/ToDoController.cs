@@ -36,7 +36,15 @@ namespace ToDoTnet.Controllers
                 return NotFound();
             }
 
-            return OkOrNotFound(new ToDoTask(item));
+            return OkOrNotFound(new ToDoTaskModel(item.ToDoID)
+            {
+                Done = item.DoneDate.HasValue,
+                Description = item.Description,
+                Title = item.Title,
+                Priority = item.Priority,
+                Product = item.Product,
+                Type = item.Type
+            });
 
 
 
@@ -44,7 +52,7 @@ namespace ToDoTnet.Controllers
 
 
         [HttpGet]
-        public async Task<List<ToDoTask>> Get()
+        public async Task<List<ToDoTaskModel>> Get()
         {
             var userName = HttpContext.User.Identity.Name;
 
@@ -52,12 +60,20 @@ namespace ToDoTnet.Controllers
 
             var items = await (from t in Ctx.ToDos
                                where t.UserID == uID
-                               orderby t.Priority descending
+                               orderby t.DoneDate descending, t.Priority descending
                                select t).ToListAsync();
 
-            List<ToDoTask> tt = new List<ToDoTask>();
+            List<ToDoTaskModel> tt = new List<ToDoTaskModel>();
 
-            items.ForEach(t => tt.Add(new ToDoTask(t)));
+            items.ForEach(item => tt.Add(new ToDoTaskModel(item.ToDoID)
+            {
+                Done = item.DoneDate.HasValue,
+                Description = item.Description,
+                Title = item.Title,
+                Priority = item.Priority,
+                Product = item.Product,
+                Type = item.Type
+            }));
 
             return tt;
         }
@@ -69,7 +85,7 @@ namespace ToDoTnet.Controllers
         public async Task<List<ToDoTask>> GetAll()
         {
             var items = await (from t in Ctx.ToDos
-                               orderby t.Priority descending
+                               orderby t.DoneDate descending, t.Priority descending
                                select t).ToListAsync();
 
             List<ToDoTask> tt = new List<ToDoTask>();
@@ -98,7 +114,6 @@ namespace ToDoTnet.Controllers
                 Description = todoTask.Description,
                 Product = todoTask.Product,
                 Type = todoTask.Type,
-                DoneDate = todoTask.DoneDate,
                 Priority = todoTask.Priority
             };
             Ctx.ToDos.Add(dbEnt);
@@ -108,7 +123,7 @@ namespace ToDoTnet.Controllers
         }
 
 
-        public async Task<IActionResult> Update([FromBody]ToDoTaskModel todoTask, string id)
+        public async Task<IActionResult> Update([FromBody]ToDoTaskModel todoTask)
         {
             if (todoTask == null)
             {
@@ -120,13 +135,17 @@ namespace ToDoTnet.Controllers
                 return BadRequest(ModelState);
             }
             Guid todoID;
-            if (!Guid.TryParse(id, out todoID))
+            if (!Guid.TryParse(todoTask.ID, out todoID))
             {
                 return NotFound();
             }
 
+            var userName = HttpContext.User.Identity.Name;
+
+            var uID = Ctx.Users.First(u => u.Name == userName).UserID;
+
             var dbTask = await (from t in Ctx.ToDos
-                                where t.ToDoID == todoID
+                                where t.ToDoID == todoID && t.UserID == uID
                                 select t).FirstOrDefaultAsync();
 
             if (dbTask == null)
@@ -138,7 +157,10 @@ namespace ToDoTnet.Controllers
             dbTask.Description = todoTask.Description;
             dbTask.Product = todoTask.Product;
             dbTask.Type = todoTask.Type;
-            dbTask.DoneDate = todoTask.DoneDate;
+            if (!dbTask.DoneDate.HasValue && todoTask.Done)
+            {
+                dbTask.DoneDate = DateTime.UtcNow;
+            }
             dbTask.Priority = todoTask.Priority;
 
 
@@ -177,9 +199,14 @@ namespace ToDoTnet.Controllers
             await Ctx.SaveChangesAsync();
             return NoContent();
         }
-        private IActionResult OkOrNotFound(object p)
+        private IActionResult OkOrNotFound(object result)
         {
-            throw new NotImplementedException();
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
     }
 }

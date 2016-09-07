@@ -24,7 +24,9 @@ namespace ToDoTnet
                     Description = "Created admin \n Only to populate database with something",
                     UserID = admin.UserID,
                     Product = "ToDoTnet",
-                    Type = "System Task"
+                    Type = "System Task",
+                    DoneDate = DateTime.UtcNow,
+                    Priority = int.MaxValue
                 };
                 
                 db.ToDos.Add(firstTask);
