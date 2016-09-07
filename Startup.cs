@@ -74,14 +74,14 @@ namespace ToDoTnet
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/ToDo/Error");
             }
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationScheme = "Cookie",
-                LoginPath = new PathString("/Account/Login/"),
-                AccessDeniedPath = new PathString("/Account/Forbidden/"),
+                LoginPath = new PathString("/User/Login/"),
+                AccessDeniedPath = new PathString("/User/UnAuthorized/"),
                 AutomaticAuthenticate = true,
                 AutomaticChallenge = true
 

@@ -8,7 +8,7 @@ using ToDoTnet.DataEntities;
 namespace ToDoTnet.Migrations
 {
     [DbContext(typeof(ToDoContext))]
-    [Migration("20160906120247_ToDoDB_0001")]
+    [Migration("ToDoDB_0001")]
     partial class ToDoDB_0001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -186,6 +186,21 @@ namespace ToDoTnet.Controllers
             return RedirectToAction(nameof(TodoController.Get), "ToDo");
         }
 
+
+        [HttpGet]
+        [AllowAnonymous]
+        public string NotLoggedIn()
+        {
+            return "Log in to use API";
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public string Forbidden()
+        {
+            return "You are not authorized for access";
+        }
+
         #region Helpers
 
         private void AddErrors(IdentityResult result)
