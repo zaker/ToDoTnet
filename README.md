@@ -22,3 +22,19 @@ dotnet restore
 dotnet ef database update
 dotnet run
 ```
+
+
+## api
+
+### User
+- Register
+- Login
+- Logout
+- Sudo
+
+### ToDo
+- Create
+- Read
+- Get All
+- Update
+- Delete
