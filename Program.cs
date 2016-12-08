@@ -13,7 +13,7 @@ namespace ToDoTnet
             using (var db = new ToDoContext())
             {
                 if (db.Users.FirstOrDefault(u => u.Name == "Admin") != null) return;
-                
+
                 var admin = new User { Name = "Admin", Email = "gm@il.io", Password = "Secret1" };
                 db.Users.Add(admin);
 
@@ -28,7 +28,7 @@ namespace ToDoTnet
                     DoneDate = DateTime.UtcNow,
                     Priority = int.MaxValue
                 };
-                
+
                 db.ToDos.Add(firstTask);
 
 
@@ -47,6 +47,7 @@ namespace ToDoTnet
         public static void Main(string[] args)
         {
             //connString = File.ReadAllText("conString.txt");
+            
             createAdmin();
             var host = new WebHostBuilder()
                 .UseKestrel()
