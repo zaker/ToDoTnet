@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using ToDoTnet.DataEntities;
-using ToDoTnet.Logic;
 
 namespace ToDoTnet.Models
 {

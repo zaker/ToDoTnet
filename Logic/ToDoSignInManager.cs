@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.Linq;
 using System.Threading.Tasks;
 using ToDoTnet.Models;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Collections.Generic;
-using ToDoTnet.DataEntities;
 
 namespace ToDoTnet.Logic
 {

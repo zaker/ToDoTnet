@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using System.Linq;
 
 namespace ToDoTnet.Controllers
 {
