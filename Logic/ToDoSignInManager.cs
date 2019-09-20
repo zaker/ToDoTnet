@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ToDoTnet.Logic
 {
@@ -16,7 +17,13 @@ namespace ToDoTnet.Logic
             IHttpContextAccessor contextAccessor, 
             IUserClaimsPrincipalFactory<ToDoUser> claimsFactory, 
             IOptions<IdentityOptions> optionsAccessor, 
-            ILogger<SignInManager<ToDoUser>> logger) : base(userManager, contextAccessor, claimsFactory, optionsAccessor, logger)
+            ILogger<SignInManager<ToDoUser>> logger,
+            IAuthenticationSchemeProvider schemes) : 
+            base(userManager, 
+                contextAccessor, 
+                claimsFactory, 
+                optionsAccessor, 
+                logger,schemes)
         {
             
         }

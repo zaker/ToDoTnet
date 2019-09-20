@@ -10,6 +10,23 @@ namespace ToDoTnet.DataEntities
         public DbSet<User> Users { get; set; }
         public DbSet<ToDo> ToDos { get; set; }
 
+
+        public ToDoContext(DbContextOptions options) : base(options)
+        {
+
+        }
+
+        public ToDoContext(string connString) : base(ConnString2Options(connString))
+        {}
+
+        private static DbContextOptions ConnString2Options(string connString)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder();
+
+            optionsBuilder.UseSqlite(connString);
+            return optionsBuilder.Options;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlite(Program.connString);

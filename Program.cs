@@ -8,9 +8,9 @@ namespace ToDoTnet
 {
     public class Program
     {
-        private static void createAdmin()
+        private static void CreateAdmin()
         {
-            using (var db = new ToDoContext())
+            using (var db = new ToDoContext(connString))
             {
                 if (db.Users.FirstOrDefault(u => u.Name == "Admin") != null) return;
 
@@ -46,9 +46,13 @@ namespace ToDoTnet
         public static string connString = "Filename=./todo.db";
         public static void Main(string[] args)
         {
+            if (args is null)
+            {
+                throw new ArgumentNullException(nameof(args));
+            }
             //connString = File.ReadAllText("conString.txt");
-            
-            createAdmin();
+
+            CreateAdmin();
             var host = new WebHostBuilder()
                 .UseKestrel()
                 .UseContentRoot(Directory.GetCurrentDirectory())

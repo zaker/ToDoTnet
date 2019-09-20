@@ -15,6 +15,8 @@ namespace ToDoTnet.Models
     public class ToDoUserManager : UserManager<ToDoUser>
 
     {
+        private readonly ToDoContext db;
+
         public ToDoUserManager(IUserStore<ToDoUser> store,
             IOptions<IdentityOptions> optionsAccessor,
             IPasswordHasher<ToDoUser> passwordHasher,
@@ -23,7 +25,8 @@ namespace ToDoTnet.Models
             ILookupNormalizer keyNormalizer,
             IdentityErrorDescriber errors,
             IServiceProvider services,
-            ILogger<UserManager<ToDoUser>> logger) :
+            ILogger<UserManager<ToDoUser>> logger,
+            ToDoContext db) :
             base(store,
                 optionsAccessor,
                 passwordHasher,
@@ -34,12 +37,13 @@ namespace ToDoTnet.Models
                 services,
                 logger)
         {
+            this.db = db;
         }
 
 
         public override async Task<ToDoUser> FindByNameAsync(string userName)
         {
-            using (var db = new ToDoContext()) // use your DbConext
+            using (db) // use your DbConext
             {
                 // Fetch - again - your user from the DB with the Id.
                 var user = await (from u in db.Users
@@ -62,7 +66,7 @@ namespace ToDoTnet.Models
             {
                 return null;
             }
-            using (var db =  new ToDoContext()) // use your DbConext
+            using (db ) // use your DbConext
             {
                 // Fetch - again - your user from the DB with the Id.
                 var user = await (from u in db.Users

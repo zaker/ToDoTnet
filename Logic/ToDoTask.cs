@@ -7,10 +7,12 @@ namespace ToDoTnet.Models
     public class ToDoTask : IAttachDbEntity<ToDo>
     {
         private ToDo _dbEnt;
+        private readonly ToDoContext ctx;
 
-        public ToDoTask()
+        public ToDoTask(ToDoContext ctx)
         {
             _dbEnt = null;
+            this.ctx = ctx;
         }
         public ToDoTask(ToDo dbEnt)
         {
@@ -32,10 +34,10 @@ namespace ToDoTnet.Models
         {
             get
             {
-                using (var db = new ToDoContext()) // use your DbConext
+                using (ctx) // use your DbConext
                 {
                     // Fetch - again - your user from the DB with the Id.
-                    return (from u in db.Users
+                    return (from u in ctx.Users
                             where u.UserID == _dbEnt.UserID
                             select u).FirstOrDefault()?.Name;
                 }

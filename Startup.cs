@@ -13,6 +13,7 @@ using ToDoTnet.Logic;
 using ToDoTnet.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ToDoTnet
 {
@@ -35,7 +36,14 @@ namespace ToDoTnet
         {
             // Add framework services.
 
+            services.AddAuthentication().AddCookie(opt =>
+            {
 
+                opt.LoginPath = new PathString("/User/Login/");
+                opt.AccessDeniedPath = new PathString("/User/UnAuthorized/");
+                //opt.AutomaticAuthenticate = true;
+                //opt.AutomaticChallenge = true;
+            });
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("AdministratorOnly", policy => policy.RequireRole("Administrator"));
@@ -77,23 +85,10 @@ namespace ToDoTnet
                 app.UseExceptionHandler("/ToDo/Error");
             }
 
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
-                AuthenticationScheme = "Cookie",
-                LoginPath = new PathString("/User/Login/"),
-                AccessDeniedPath = new PathString("/User/UnAuthorized/"),
-                AutomaticAuthenticate = true,
-                AutomaticChallenge = true
-
-            });
-
+            
             app.UseStaticFiles();
 
-            app.UseIdentity();
-            app.UseClaimsTransformation(new ClaimsTransformationOptions
-            {
-                Transformer = new ClaimsTransformer()
-            });
+           
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
