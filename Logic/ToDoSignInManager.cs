@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using ToDoTnet.Models;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -36,7 +35,7 @@ namespace ToDoTnet.Logic
                 return SignInResult.Failed;
             }
 
-            PasswordHasher<ToDoUser> hasher = new PasswordHasher<ToDoUser>();
+            _ = new PasswordHasher<ToDoUser>();
             if (user.Password != password){
                 return SignInResult.Failed;
             }
@@ -48,13 +47,13 @@ namespace ToDoTnet.Logic
 
         public override async Task<ClaimsPrincipal> CreateUserPrincipalAsync(ToDoUser user)
         {
-            var principal = await base.CreateUserPrincipalAsync(user); 
-            List<Claim> claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Name, user.UserName, ClaimValueTypes.String, "urn:ToDoTnet"));
+            var principal = await base.CreateUserPrincipalAsync(user);
 
-            var identity = new ClaimsIdentity(claims, "Cookie");
 
-            principal.AddIdentity(identity);
+            principal.AddIdentity(new ClaimsIdentity(new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName, ClaimValueTypes.String, "urn:ToDoTnet")
+            }, "Cookie"));
             return principal;
         }
 

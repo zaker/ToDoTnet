@@ -11,9 +11,6 @@ using ToDoTnet.DataEntities;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using ToDoTnet.Logic;
 using ToDoTnet.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ToDoTnet
 {
@@ -34,6 +31,16 @@ namespace ToDoTnet
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
+            services.AddLogging(logger=>
+            {
+                logger.AddConsole(opt =>
+                {
+                    opt.IncludeScopes = true;
+                });
+                logger.AddDebug();
+            });
+            
             // Add framework services.
 
             services.AddAuthentication().AddCookie(opt =>
@@ -70,10 +77,9 @@ namespace ToDoTnet
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            
 
             if (env.IsDevelopment())
             {

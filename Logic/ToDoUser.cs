@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using ToDoTnet.DataEntities;
 
 namespace ToDoTnet.Models

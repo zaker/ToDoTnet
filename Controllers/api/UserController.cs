@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using ToDoTnet.Models;
-using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 
 namespace ToDoTnet.Controllers
 {
@@ -45,16 +45,20 @@ namespace ToDoTnet.Controllers
         [AllowAnonymous]
         public IActionResult Login(string returnUrl = null)
         {
+            if (returnUrl is null)
+            {
+                return null;
+            }
+
             return null;
         }
 
 
         [HttpGet]
-        public IActionResult Sudo()
+        public async Task<IActionResult> Sudo()
         {
             var userName = HttpContext.User.Identity.Name;
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            if (identity == null)
+            if (!(HttpContext.User.Identity is ClaimsIdentity identity))
                 return NoContent();
 
             // check for existing claim and remove it
@@ -64,19 +68,18 @@ namespace ToDoTnet.Controllers
                 identity.RemoveClaim(cl);
             }
             const string Issuer = "ToDoTnet";
-            var claims = new List<Claim>();
-
-
-            claims.Add(new Claim(ClaimTypes.Name, userName, ClaimValueTypes.String, Issuer));
-
-            claims.Add(new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, Issuer));
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, userName, ClaimValueTypes.String, Issuer),
+                new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, Issuer)
+            };
 
             var userIdentity = new ClaimsIdentity("ToDoLogin");
             userIdentity.AddClaims(claims);
             var userPrincipal = new ClaimsPrincipal(userIdentity);
 
-            HttpContext.Authentication.SignInAsync("Cookie", userPrincipal,
-               new AuthenticationProperties
+            await HttpContext.SignInAsync("Cookie", userPrincipal,
+               new Microsoft.AspNetCore.Authentication.AuthenticationProperties
                {
                    ExpiresUtc = DateTime.UtcNow.AddMinutes(30),
                    IsPersistent = false,
@@ -105,8 +108,10 @@ namespace ToDoTnet.Controllers
                 {
                     _logger.LogInformation(1, "User logged in.");
                     const string Issuer = "ToDoTnet";
-                    var claims = new List<Claim>();
-                    claims.Add(new Claim(ClaimTypes.Name, model.User, ClaimValueTypes.String, Issuer));
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, model.User, ClaimValueTypes.String, Issuer)
+                    };
                     if (model.User == "Admin")
                     {
                         claims.Add(new Claim(ClaimTypes.Role, "Administrator", ClaimValueTypes.String, Issuer));
@@ -115,8 +120,8 @@ namespace ToDoTnet.Controllers
                     userIdentity.AddClaims(claims);
                     var userPrincipal = new ClaimsPrincipal(userIdentity);
 
-                    await HttpContext.Authentication.SignInAsync("Cookie", userPrincipal,
-                        new AuthenticationProperties
+                    await HttpContext.SignInAsync("Cookie", userPrincipal,
+                        new Microsoft.AspNetCore.Authentication.AuthenticationProperties
                         {
                             ExpiresUtc = DateTime.UtcNow.AddMinutes(30),
                             IsPersistent = false,
@@ -180,7 +185,7 @@ namespace ToDoTnet.Controllers
 
         public async Task<IActionResult> LogOff()
         {
-            await HttpContext.Authentication.SignOutAsync("Cookie");
+            await HttpContext.SignOutAsync("Cookie");
             _logger.LogInformation(4, "User logged out.");
             return RedirectToAction(nameof(TodoController.Get), "ToDo");
         }
@@ -201,19 +206,6 @@ namespace ToDoTnet.Controllers
         }
 
         #region Helpers
-
-        private void AddErrors(IdentityResult result)
-        {
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-        }
-
-        private Task<ToDoUser> GetCurrentUserAsync()
-        {
-            return _userManager.GetUserAsync(HttpContext.User);
-        }
 
         private IActionResult RedirectToLocal(string returnUrl)
         {
